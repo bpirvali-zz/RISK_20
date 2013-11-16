@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans classpath:org/springframework/beans/factory/xml/spring-beans-3.0.xsd">
+       
+	 <bean id="configMgrImpl" class="com.intuit.psd.risk.risk2.configmgr.ConfigMgrImpl">
+		<constructor-arg index="0" ref="jdbcTemplate"/>
+	 </bean>
+	 
+	 <bean id="cardBatchEventFeederDAOImpl" class="com.intuit.psd.risk.risk2.topology.dao.CardBatchEventFeederDAOImpl">
+	 	<!-- <property name="jdbcTemplate" ref="jdbcTemplate" /> -->
+	 </bean>
+
+	 <bean id="cardBatchEventSpout" class="com.intuit.psd.risk.risk2.topology.spouts.CardBatchEventSpout">
+	 	<property name="eventFeeder" ref="cardBatchEventFeederDAOImpl" />
+	 </bean>
+	 
+</beans>
