@@ -2,8 +2,6 @@ package com.intuit.psd.risk.risk2.topology.bolts;
 
 import java.util.Map;
 
-//import org.easymock.EasyMock;
-//import static org.easymock.EasyMock.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +17,13 @@ import com.intuit.psd.risk.processor.RiskProcessor;
 import com.intuit.psd.risk.processor.RiskProcessorResponse;
 import com.intuit.psd.risk.processor.card.CardBatchEventImpl;
 import com.intuit.psd.risk.risk2.configmgr.AppConsts;
+import com.intuit.psd.risk.risk2.configmgr.interfaces.ConfigMgr;
 import com.intuit.psd.risk.risk2.topology.SpringObjectMgr;
 import com.intuit.psd.risk.risk2.topology.Util;
 import com.intuit.psd.risk.risk2.topology.spouts.CardBatchEventSpout;
 import com.intuit.psd.risk.risk2.topology.tuples.CardBatchEvent;
+//import org.easymock.EasyMock;
+//import static org.easymock.EasyMock.*;
 
 public class CardBatchEventBolt extends BaseRichBolt {
 	private static final long serialVersionUID = 1L;
@@ -33,10 +34,8 @@ public class CardBatchEventBolt extends BaseRichBolt {
 	private TopologyContext topologyCtx = null;
 	private OutputCollector collector = null;
 	private transient RiskProcessor riskProcessor = null;
-	//private static ApplicationContext springCtx = null;
-	//private long timeOutMiliSecs;
 	private long fakeHangMiliSecs;
-	
+	private ConfigMgr cfg =null;
 	private int boltID;
 
 	@SuppressWarnings("rawtypes")
@@ -55,6 +54,8 @@ public class CardBatchEventBolt extends BaseRichBolt {
 		if (riskProcessor==null) 
 			riskProcessor = (RiskProcessor)SpringObjectMgr.getInstance().getBean("riskProcessorImpl");
 			//riskProcessor = (RiskProcessor)createMockedProcessor();
+		//if (cfg==null) 
+		//	cfg = (RiskProcessor)SpringObjectMgr.getInstance().getBean("ConfigMgrImpl");
 		
 		riskProcessor.prepare(boltID);
 	}
