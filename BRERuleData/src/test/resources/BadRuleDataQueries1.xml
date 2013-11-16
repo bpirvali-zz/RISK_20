@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RuleDataQueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.example.org/RuleDataQueries RuleDataQueries.xsd">
+
+	<query name="query.TestQuery" dbConnection="MSSQL">
+		<![CDATA[
+			select BATCHDATE, TESTSTRING, TESTINT, TESTREAL, TESTDATE from TESTTABLE
+			where ACCOUNTNUM = '[MA_NUM]'
+			and BATCHDATE = '[BCD]';
+		]]>
+	</query>
+	
+	<spcall name="spcall.TestSP" dbConnection="MSSQL">
+		<![CDATA[
+			{CALL usp_BRE_AGG_CREDIT('[MA_NUM]', 'TRAN', 'SUM', 120, 'DAY', 'CreditTotal', '[BCD]')}
+		]]>
+	</spcall>	
+
+	<ruledata key="test.string" query="query.TestQuery" column="TESTSTRING" type="string" />
+	<ruledata key="test.int" query="query.TestQuery" column="TESTINT" type="integer" />
+	<ruledata key="test.long" query="query.TestQuery" column="TESTINT" type="long" />
+	<ruledata key="test.double" query="query.TestQuery" column="TESTREAL" type="double" />
+	<ruledata key="test.date" query="query.TestQuery" column="TESTDATE" type="date" />
+	
+	<ruledata key="testsp.string" spcall="spcall.TestSP" column="CardType" type="string" />
+  	<ruledata key="testsp.SalesCount120Day" spcall="spcall.TestSP" column="SALE_CNT" type="integer" />
+  	
+  	<!-- The problem is here (keyx) -->
+  	<ruledata keyx="testsp.SalesAmount120Day" spcall="spcall.TestSP" column="SALE_AMT" type="double" />
+
+</RuleDataQueries>

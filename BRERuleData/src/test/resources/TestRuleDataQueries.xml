@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RuleDataQueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.example.org/RuleDataQueries RuleDataQueries.xsd">
+
+	<query name="query.AggDaily" dbConnection="MSSQL">
+		<![CDATA[
+			select 1 as DepositCountDaily
+		]]>
+	</query>
+	
+	<query name="query.MerchantProfile" dbConnection="MSSQL">
+		<![CDATA[
+			select 'OPEN' as AccountStatus
+		]]>
+	</query>
+	
+	<spcall name="storedproc.120day.tran.credittotal" dbConnection="MSSQL">
+		<![CDATA[
+			{CALL dbo.usp_BRE_AGG_CREDIT('[MA_NUM]', 'TRAN', 'SUM', 120, 'DAY', 'CreditTotal', '[BCD]')}
+		]]>
+	</spcall>	
+		
+	<ruledata key="aggregates.DepositCountDaily" query="query.AggDaily" column="DepositCountDaily" type="double" />
+	<ruledata key="merchantProfile.AccountStatus" query="query.MerchantProfile" column="AccountStatus" type="string" />
+  	<ruledata key="aggregates.SalesCount120Day" spcall="storedproc.120day.tran.credittotal" column="SALE_CNT" type="long" />
+  	<ruledata key="aggregates.SalesAmount120Day" spcall="storedproc.120day.tran.credittotal" column="SALE_AMT" type="long" />
+
+</RuleDataQueries>

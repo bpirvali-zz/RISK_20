@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RuleDataQueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.example.org/RuleDataQueries RuleDataQueries.xsd">
+
+	<query name="query.TestQuery" dbConnection="MSSQL">
+		<![CDATA[
+			select BATCHDATE, TESTSTRING, TESTINT, TESTREAL, TESTDATE, TESTBIGINT from TESTTABLE
+			where ACCOUNTNUM = '[MA_NUM]'
+			and BATCHDATE = '[BCD]'
+		]]>
+	</query>
+	
+	<query name="query.ConvTestQuery" dbConnection="MSSQL">
+		<![CDATA[
+			select BATCHDATE, TESTSTRING, TESTINT, TESTREAL, TESTDATE, TESTBIGINT from TESTTABLE
+			where ACCOUNTNUM = '[MA_NUM]'
+			and BATCHDATE = '[BCD]'
+		]]>
+	</query>
+		
+	<spcall name="spcall.TestSP" dbConnection="MSSQL">
+		<![CDATA[
+			{CALL usp_BRE_AGG_CREDIT('[MA_NUM]', 'TRAN', 'SUM', 120, 'DAY', 'CreditTotal', '[BCD]')}
+		]]>
+	</spcall>	
+
+	<ruledata key="test.string" query="query.TestQuery" column="TESTSTRING" type="string" />
+	<ruledata key="test.int" query="query.TestQuery" column="TESTINT" type="integer" />
+	<ruledata key="test.long" query="query.TestQuery" column="TESTBIGINT" type="long" />
+	<ruledata key="test.double" query="query.TestQuery" column="TESTREAL" type="double" />
+	<ruledata key="test.date" query="query.TestQuery" column="TESTDATE" type="date" />
+	
+	<ruledata key="testsp.string" spcall="spcall.TestSP" column="CardType" type="string" />
+  	<ruledata key="testsp.SalesCount120Day" spcall="spcall.TestSP" column="SALE_CNT" type="integer" />
+  	<ruledata key="testsp.SalesAmount120Day" spcall="spcall.TestSP" column="SALE_AMT" type="double" />
+
+	<!-- converting to integer -->
+
+	<ruledata key="conv.testint1" query="query.ConvTestQuery" column="TESTSTRING" type="integer" />
+	<ruledata key="conv.testint2" query="query.ConvTestQuery" column="TESTINT" type="integer" />
+	<ruledata key="conv.testint3" query="query.ConvTestQuery" column="TESTBIGINT" type="integer" />
+	<ruledata key="conv.testint4" query="query.ConvTestQuery" column="TESTREAL" type="integer" />
+
+	<!-- converting to double -->
+
+	<ruledata key="conv.testdouble1" query="query.ConvTestQuery" column="TESTSTRING" type="double" />
+	<ruledata key="conv.testdouble2" query="query.ConvTestQuery" column="TESTINT" type="double" />
+	<ruledata key="conv.testdouble3" query="query.ConvTestQuery" column="TESTBIGINT" type="double" />
+	<ruledata key="conv.testdouble4" query="query.ConvTestQuery" column="TESTREAL" type="double" />
+
+	<!-- converting to long -->
+
+	<ruledata key="conv.testlong1" query="query.ConvTestQuery" column="TESTSTRING" type="long" />
+	<ruledata key="conv.testlong2" query="query.ConvTestQuery" column="TESTINT" type="long" />
+	<ruledata key="conv.testlong3" query="query.ConvTestQuery" column="TESTBIGINT" type="long" />
+	<ruledata key="conv.testlong4" query="query.ConvTestQuery" column="TESTREAL" type="long" />
+
+	<!-- converting to string -->
+
+	<ruledata key="conv.teststr1" query="query.ConvTestQuery" column="TESTSTRING" type="string" />
+	<ruledata key="conv.teststr2" query="query.ConvTestQuery" column="TESTINT" type="string" />
+	<ruledata key="conv.teststr3" query="query.ConvTestQuery" column="TESTBIGINT" type="string" />
+	<ruledata key="conv.teststr4" query="query.ConvTestQuery" column="TESTREAL" type="string" />
+	
+</RuleDataQueries>

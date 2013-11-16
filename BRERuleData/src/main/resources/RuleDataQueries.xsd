@@ -1,0 +1,66 @@
+<xs:schema attributeFormDefault="unqualified"
+	elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:complexType name="queryType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="name" use="required" />
+				<xs:attribute type="xs:string" name="dbConnection" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="spcallType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="name" use="required" />
+				<xs:attribute type="xs:string" name="dbConnection" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="ruledataType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="key" use="required" />
+				<xs:attribute type="xs:string" name="query" use="optional" />
+				<xs:attribute type="xs:string" name="spcall" use="optional" />
+				<xs:attribute type="xs:string" name="column" use="required" />
+				<xs:attribute type="xs:string" name="type" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:element name="RuleDataQueries">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="query" maxOccurs="unbounded" minOccurs="0"  type="queryType" />
+				<xs:element name="spcall" maxOccurs="unbounded" minOccurs="0"  type="spcallType" />
+				<xs:element name="ruledata" maxOccurs="unbounded" minOccurs="0" type="ruledataType" />
+			</xs:sequence>
+		</xs:complexType>
+
+		<xs:key name="PK_Query_Name">
+			<xs:selector xpath=".//query" />
+			<xs:field xpath="@name" />
+		</xs:key>
+		<xs:key name="PK_Spcall_Name">
+			<xs:selector xpath=".//spcall" />
+			<xs:field xpath="@name" />
+		</xs:key>
+		<xs:key name="PK_RuleData_Key">
+			<xs:selector xpath=".//ruledata" />
+			<xs:field xpath="@key" />
+		</xs:key>
+		<xs:keyref name="FK_QueryRuleData" refer="PK_Query_Name">
+			<xs:selector xpath=".//ruledata" />
+			<xs:field xpath="@query" />
+		</xs:keyref>
+		<xs:keyref name="FK_SpcallRuleData" refer="PK_Spcall_Name">
+			<xs:selector xpath=".//ruledata" />
+			<xs:field xpath="@spcall" />
+		</xs:keyref>
+
+	</xs:element>
+
+</xs:schema>

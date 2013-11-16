@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RuleDataQueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.example.org/RuleDataQueries RuleDataQueries.xsd">
+
+	<query name="query.merchant_enc" dbConnection="OASIS">
+		<![CDATA[
+			select m.DBANAME as DBANAME 
+			from oasis_owner.merchant_enc m,
+			oasis_owner.merchantaccount_enc ma
+			where ma.merchanteid = m.eid
+			and ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchantaccount_enc" dbConnection="OASIS">
+		<![CDATA[
+			select ma.* from oasis_owner.merchantaccount_enc ma
+			where ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.merchantProfile" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				mae.agentofficename AgentOfficeName,
+				mae.bankstatus BankStatus,
+				mae.internet BusinessModeInternet,
+				mae.mailorder BusinessModeMailOrder,
+				mae.other BusinessModeOther,
+				mae.restaurant BusinessModeRestaurant,
+				mae.retail BusinessModeRetail,
+				mae.service BusinessModeService,
+				mae.creditscore CreditScore,
+				mae.csfwaivedmonths CsfWaivedMonths,
+				mae.imsstatus ImsStatus,
+				mae.imsstatusdate ImsStatusDate,
+        		mae.csfwaived GpFeeWaived,
+        		mae.monthlyservicefee MonthlyServiceFee,
+			  	DECODE(INSTR(upper(mae.qbmsprocessing), 'MOBILE'), 1, 'Y', 'N') MobileMerchant,
+			  	DECODE(UPPER(mae.qbmsprocessing), 'MOBILE', 'Y', 'N') MobileOnlyMerchant,
+			  	mae.ownershiptype OwnershipType,
+			    (mae.AGEOFBUSINESSMONTH + (mae.AGEOFBUSINESSYEAR * 12)) AgeOfBusinessMonths,
+			  	mae.AGEOFBUSINESSYEAR ageWithIMS,
+			  	mae.qbmsSdkFee,
+				'N' highVolumeMerchantRetention,
+        		ad.state LocationState, 
+        		ad.zipcode Locationzip,
+        		me.siccode SicCode,
+        		'N' NewMerchantRetention,
+        		'N' NewMerchantRisk
+			FROM
+                oasis_owner.merchantaccount_enc mae,
+                oasis_owner.address ad, 
+                oasis_owner.merchant_enc me,
+                oasis_owner.merchantaddressbridge adb
+      		WHERE
+                mae.merchanteid = me.eid AND
+                adb.merchanteid = me.eid AND
+                adb.addresseid = ad.eid AND 
+                mae.accountnumber  = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.accountExtended" dbConnection="OASIS">
+		<![CDATA[
+			SELECT
+				maex.breriskscore MerchantRiskScore, 
+				maex.recommendeddailylimit MerchantDailyLimits, 
+				maex.recommendedamv RecalculatedApprovedMonvol 
+			FROM
+				oasis_owner.merchantaccountextended maex,
+				oasis_owner.merchantaccount_enc ma
+			WHERE
+				ma.eid = maex.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.vantageCreditScore" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+                  CASE 
+                  WHEN MIN(e2.VANTAGESCORE) is NULL THEN NULL
+                  WHEN MIN(e2.VANTAGESCORE) BETWEEN 1 and 3 THEN MIN(e2.VANTAGESCORE)
+                  WHEN MIN(e2.VANTAGESCORE) BETWEEN 501 and 990 THEN MIN(e2.VANTAGESCORE)
+                  ELSE '99900'
+                  END VantageCreditScore
+			FROM OASIS_OWNER.EXPERIANALERTQUARTERLY e1,
+				 OASIS_OWNER.EXPERIANALERTPROPRIETOR e2,
+				 oasis_owner.merchantaccount_enc ma
+			WHERE e1.EID=e2.EXPERIANALERTQUARTERLYEID
+				AND e1.CURRENTRECORD = 'TRUE'
+				AND e1.MERCHANTACCOUNTEID = ma.eid
+				AND e2.MERCHANTACCOUNTEID = ma.eid
+				AND ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.approvedMonthlyVolume" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value ApprovedMonthlyVolume
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'APPROVEDMONTHLYVOLUME' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.nachaStatus" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				DECODE(col_value, 'ON', 'Y', 'N') NachaStatus
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'NACHASTATE' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.scoreAge" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value ScoreAge
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'SCOREAGE' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.approvedTicketAmount" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value ApprovedTicketAmount
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'APPROVEDTICKETAMOUNT' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.collectReserveStatus" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value CollectReserveStatus
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'COLLECT_RESERVE_STATUS' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.highValueMerchantRisk" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value HighValueMerchantRisk
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'HIGHVALUEMERCHANTRISK' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.highVolumeMerchantRisk" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value HighVolumeMerchantRisk
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'HIGHVOLUMEMERCHANTRISK' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.intuitFinancialRiskLevel" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value IntuitFinancialRiskLevel
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'INTUITFINANCIALRISKLEVEL' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.banControlStatus" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				col_value BanControlStatus
+			FROM 
+				oasis_owner.merchantprofilefields mpf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				col_name = 'BANCONTROLSTATUS' AND 
+				ma.eid = mpf.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+
+	<query name="query.merchant.experian" dbConnection="OASIS">
+		<![CDATA[
+            SELECT 
+              eaq.BANKRUPTCYTYPE ExperianBankrupcyIndicator,
+              eaq.INTELLISCOREPLUSSCORE ExperianIntelliScorePlusScore,
+              eaq.JUDGMENTBALANCE ExperianJudgementBalance,
+              eaq.JUDGMENTCOUNT ExperianJudgementCount,
+              eaq.LIENBALANCE ExperianLienBalance,
+              eaq.LIENCOUNT ExperianLienCount,
+              eaq.SICCODE ExperianSIC,
+              eaq.VANTAGESCORE ExperianVantageScore,
+              eaq.ALERTDATE alertDate
+            FROM
+                          oasis_owner.experianalertquarterly eaq,
+                          oasis_owner.merchantaccount_enc ma
+            WHERE
+				ma.eid = eaq.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.merchantBank" dbConnection="OASIS">
+		<![CDATA[
+			select bank.FUNDINGTYPEID FUNDINGTYPEID
+            from OASIS_OWNER.MERCHANTBANK_ENC bank 
+            where bank.eid =  
+            (select bridge.MERCHANTBANKEID 
+            from OASIS_OWNER.MERCHANTACCOUNTBANKBRIDGE bridge 
+            where bridge.merchantaccounteid = (
+            select me.MERCHANTEID 
+            from oasis_owner.merchantaccount_enc me 
+            where me.accountnumber = [MA_NUM]))
+		]]>
+	</query>
+
+	<query name="query.merchant.merchantTransHeader" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				first_batch_date FirstTransactionDate,
+				last_batch_date LastTransactionDate,
+				(TRUNC(sysdate) - first_batch_date) DaysSinceFirstTransaction,
+				(TRUNC(sysdate) - last_batch_date) DaysSinceLastTransaction
+			FROM 
+				oasis_owner.merchant_transaction_header mh,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+				ma.eid = mh.merchantaccounteid AND
+				ma.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.merchant.merchantAppChannel" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				ACLKUP.CHANNEL AS CHANNEL
+			FROM 
+				OASIS_OWNER.MERCHANTACCOUNT_ENC A left join OASIS_OWNER.MERCHANTACCOUNTEXTENDED B on A.EID = B.MERCHANTACCOUNTEID
+				left join ACCOUNTENROLMENT_STAGING.APPLICATIONCHANNELLOOKUP ACLKUP on B.APPLICATIONCHANNELID = ACLKUP.APPLICATIONCHANNELID
+			WHERE 
+				A.accountnumber = [MA_NUM]
+		]]>
+	</query>
+	
+	<query name="query.merchant.banControlHistory" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				DECODE(count(1), 0, 'FALSE', 'TRUE')  BANCONTROLSTATUS
+			FROM 
+				oasis_owner.bancontrolhistory 
+			WHERE 
+				merchantaccounteid = (
+            select me.MERCHANTEID 
+            from oasis_owner.merchantaccount_enc me 
+            where me.accountnumber = [MA_NUM]) AND
+            bancontrolstatus = 'TRUE'
+		]]>
+	</query>
+
+	<query name="query.merchant.sincAlertIndicator" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+			    ex.sincalertindicator SincAlertIndicator
+			FROM
+			    oasis_owner.merchantaccount_enc ma, 
+			    OASIS_OWNER.MERCHANTACCOUNTEXTENDED ex 
+			WHERE
+				MA.EID = ex.MERCHANTACCOUNTEID AND
+			    MA.accountnumber = [MA_NUM]
+		]]>
+	</query>
+
+	<query name="query.idAnalytics.score" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				ID_SCORE IdScore,
+				ID_SCORE_RESULTCODE1 IdScoreResultCode1,
+				ID_SCORE_RESULTCODE2 IdScoreResultCode2,
+				ID_SCORE_RESULTCODE3 IdScoreResultCode3
+			FROM OASIS_OWNER.UW_ENGINE_DECISION D, 
+				OASIS_OWNER.APPLICATIONMERCHANTBRIDGE MBR, 
+				oasis_owner.merchantaccount_enc ma, 
+				OASIS_OWNER.UW_ENGINE_ID_ANALYTICS I 
+			WHERE 
+				D.APPLICATION_EID = MBR.ACCOUNTAPPLICATIONEID AND 
+				D.UW_ENGINE_DECISION_EID = I.UW_ENGINE_DECISION_EID AND 
+				MBR.MERCHANTACCOUNTEID = ma.EID AND
+				ma.ACCOUNTNUMBER = [MA_NUM]
+			]]>
+	</query>
+
+	<query name="query.idAnalytics.complianceAttributesOverall" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				  DECODE(count(1), 1, 'Y', 'N') ComplianceAttributesOverall 
+			FROM OASIS_OWNER.UW_ENGINE_DECISION D, 
+				  OASIS_OWNER.APPLICATIONMERCHANTBRIDGE MBR,
+				  oasis_owner.merchantaccount_enc ma, 
+				  OASIS_OWNER.UW_ENGINE_ID_ANALYTICS I 
+			WHERE 
+				  D.APPLICATION_EID = MBR.ACCOUNTAPPLICATIONEID AND 
+				  D.UW_ENGINE_DECISION_EID = I.UW_ENGINE_DECISION_EID AND 
+				  MBR.MERCHANTACCOUNTEID = ma.EID AND
+				  ma.ACCOUNTNUMBER = [MA_NUM] AND
+				  (NAME_DOB_ASSOC_WITH_FRAUD = 'Y' OR
+				  HOME_PHONE_ASSOC_WITH_FRAUD = 'Y' OR
+				  SSN_WITH_SUSP_CONF_FRAUD = 'Y' OR
+				  NAME_MATCH_WITH_OFAC = 'Y' OR
+				  INVALID_ADDRESS = 'Y' OR
+				  ADDRESS_IS_NONRESIDENTIAL = 'Y' OR
+				  ADDRESS_TYPE_HIGHRISK = 'Y' OR
+				  ADDRESS_NOT_FULLY_VALIDATED = 'Y' OR
+				  ADDRESS_NONPHYSICAL = 'Y' OR
+				  HOMEPHONE_INVALID = 'Y' OR
+				  WORKPHONE_INVALID = 'Y' OR
+				  HOMEPHONE_MISMATCH_WITH_ZIP = 'Y' OR
+				  SSN_INVALID = 'Y' OR
+				  SSN_FRIVOLOUS = 'Y' OR
+				  SSN_ISSUED_BEFORE_DOB = 'Y' OR
+				  SSN_REPORTED_DECEASED = 'Y' OR
+				  SSN_ISSUE_YEAR_DIFF_5YEARS = 'Y' OR
+				  DOB_INVALID = 'Y' OR
+				  NUMBER_APPS_USING_ADDRESS = 'Y' OR
+				  NUMBER_APPS_USING_NAME_DOB = 'Y' OR
+				  NUMBER_APPS_USING_HOMEPHONE = 'Y' OR
+				  NUMBER_APPS_USING_SSN = 'Y' OR
+				  UNABLE_CONFIRM_ADDRESS = 'Y' OR
+				  UNABLE_CONFIRM_NAME_AND_DOB = 'Y' OR
+				  UNABLE_CONFIRM_HOMEPHONE = 'Y' OR
+				  UNABLE_CONFIRM_SSN = 'Y' OR
+				  SSN_MISSING = 'Y' OR
+				  ADDRESS_MISSING = 'Y' OR
+				  DOB_MISSING = 'Y' OR
+				  CA_INSUFFICIENT_DATA = 'Y' OR
+				  SSN_ASSOC_WITH_DIFF_NAME = 'Y' OR
+				  SSN_LINKED_2MORENAMES1YEAR = 'Y' OR
+				  SSN_LINKED_3MORENAMES1YEAR = 'Y' OR
+				  SSN_LINKED_4MOREADD1YEAR = 'Y' OR
+				  SSN_LINKED_4MOREHP1YEAR = 'Y' OR
+				  ADD_LINKED_8MOREHP1YEAR = 'Y' OR
+				  NDOB_LINKED_4MOREHP1YEAR = 'Y' OR
+				  HP_LINKED_4MOREADD1YEAR = 'Y')
+			]]>
+	</query>
+
+	<query name="query.idAnalytics.fraudAttributesOverall" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				DECODE(count(1), 1, 'Y', 'N') FraudAttributesOverall 
+			FROM OASIS_OWNER.UW_ENGINE_DECISION D, 
+				OASIS_OWNER.APPLICATIONMERCHANTBRIDGE MBR, 
+				oasis_owner.merchantaccount_enc ma, 
+				OASIS_OWNER.UW_ENGINE_ID_ANALYTICS I 
+			WHERE 
+				D.APPLICATION_EID = MBR.ACCOUNTAPPLICATIONEID AND 
+				D.UW_ENGINE_DECISION_EID = I.UW_ENGINE_DECISION_EID AND 
+				 MBR.MERCHANTACCOUNTEID = ma.EID AND
+				 ma.ACCOUNTNUMBER = [MA_NUM] AND
+				(ADDRESS_ASSOC_WITH_FRAUD = 'Y' OR
+				NAME_DOB_ASSOC_WITH_FRAUD = 'Y' OR
+				HOME_PHONE_ASSOC_WITH_FRAUD = 'Y' OR
+				SSN_WITH_SUSP_CONF_FRAUD = 'Y' OR
+				INVALID_ADDRESS = 'Y' OR
+				ADDRESS_IS_NONRESIDENTIAL = 'Y' OR
+				ADDRESS_TYPE_HIGHRISK = 'Y' OR
+				ADDRESS_NONPHYSICAL = 'Y' OR
+				HOMEPHONE_INVALID = 'Y' OR
+				WORKPHONE_INVALID = 'Y' OR
+				HOMEPHONE_MISMATCH_WITH_ZIP = 'Y' OR
+				SSN_INVALID = 'Y' OR
+				SSN_FRIVOLOUS = 'Y' OR
+				SSN_ISSUED_BEFORE_DOB = 'Y' OR
+				SSN_REPORTED_DECEASED = 'Y' OR
+				SSN_ISSUE_YEAR_DIFF_5YEARS = 'Y' OR
+				DOB_INVALID = 'Y' OR
+				NUMBER_APPS_USING_ADDRESS = 'Y' OR
+				NUMBER_APPS_USING_NAME_DOB = 'Y' OR
+				NUMBER_APPS_USING_HOMEPHONE = 'Y' OR
+				NUMBER_APPS_USING_SSN = 'Y' OR
+				UNABLE_CONFIRM_ADDRESS = 'Y' OR
+				UNABLE_CONFIRM_NAME_AND_DOB = 'Y' OR
+				UNABLE_CONFIRM_HOMEPHONE = 'Y' OR
+				UNABLE_CONFIRM_SSN = 'Y' OR
+				SSN_MISSING = 'Y' OR
+				ADDRESS_MISSING = 'Y' OR
+				DOB_MISSING = 'Y' OR
+				HOMEPHONE_MISSING = 'Y' OR
+				CA_INSUFFICIENT_DATA = 'Y' OR
+				SSN_ASSOC_WITH_DIFF_NAME = 'Y' OR
+				SSN_LINKED_2MORENAMES1YEAR = 'Y' OR
+				SSN_LINKED_3MORENAMES1YEAR = 'Y' OR
+				SSN_LINKED_4MOREADD1YEAR = 'Y' OR
+				SSN_LINKED_4MOREHP1YEAR = 'Y' OR
+				ADD_LINKED_8MOREHP1YEAR = 'Y' OR
+				NDOB_LINKED_4MOREHP1YEAR = 'Y' OR
+				HP_LINKED_4MOREADD1YEAR = 'Y' OR
+				SSN_LINKED_2MORENAMES2YEARS = 'Y' OR
+				SSN_LINKED_3MORENAMES2YEARS = 'Y' OR
+				SSN_LINKED_2MORENAMES3YEARS = 'Y' OR
+				SSN_LINKED_3MORENAMES3YEARS = 'Y' OR
+				SSN_LINKED_2MOREADD1YEAR = 'Y' OR
+				SSN_LINKED_3MOREADD1YEAR = 'Y' OR
+				SSN_LINKED_3MOREADD2YEARS = 'Y' OR
+				SSN_LINKED_4MOREADD2YEARS = 'Y' OR
+				SSN_LINKED_6MOREADD2YEARS = 'Y' OR
+				SSN_LINKED_3MOREHP1YEAR = 'Y' OR
+				SSN_LINKED_3MOREHP2YEARS = 'Y' OR
+				SSN_LINKED_5MOREHP2YEARS = 'Y' OR
+				SSN_LINKED_3MOREHP3YEARS = 'Y' OR
+				SSN_LINKED_5MOREHP3YEARS = 'Y' OR
+				ADD_LINKED_4MOREHP1YEAR = 'Y' OR
+				ADD_LINKED_6MOREHP1YEAR = 'Y' OR
+				ADD_LINKED_5MOREHP2YEARS = 'Y' OR
+				ADD_LINKED_7MOREHP2YEARS = 'Y' OR
+				ADD_LINKED_9MOREHP2YEARS = 'Y' OR
+				NDOB_LINKED_3MOREHP1YEAR = 'Y' OR
+				NDOB_LINKED_3MOREHP2YEARS = 'Y' OR
+				NDOB_LINKED_5MOREHP2YEARS = 'Y' OR
+				NDOB_LINKED_3MOREHP3YEARS = 'Y' OR
+				NDOB_LINKED_5MOREHP3YEARS = 'Y' OR
+				HP_LINKED_2MOREADD1YEAR = 'Y' OR
+				HP_LINKED_3MOREADD1YEAR = 'Y' OR
+				HP_LINKED_3MOREADD2YEARS = 'Y' OR
+				HP_LINKED_4MOREADD2YEARS = 'Y' OR
+				HP_LINKED_5MOREADD2YEARS = 'Y' OR
+				FRAUD_PATTERNMATCH_A1 = 'Y' OR
+				FRAUD_PATTERNMATCH_A2 = 'Y' OR
+				FRAUD_PATTERNMATCH_B1 = 'Y')
+			]]>
+	</query>
+
+	<query name="query.iovation.UwEngine" dbConnection="OASIS">
+		<![CDATA[
+			SELECT
+				(TRUNC(sysdate) - i.device_firstseen) DaysSinceDeviceFirstSeen,
+			    i.device_browser_type DeviceBrowserType,
+			    i.device_browser_version DeviceBrowserVersion,
+			    i.device_cookie_enabled DeviceCookieEnabled,
+			    i.device_firstseen DeviceFirstSeen,
+			    i.device_new DeviceNew,
+			    i.device_type DeviceType,
+			    i.merchant_account_eid MerchantAccountEID,
+			    i.realip RealIp,
+			    i.realip_isp RealIpIsp,
+			    i.realip_loc_city RealIpLocCity,
+			    i.realip_loc_country RealIpLocCountry,
+			    i.realip_loc_countrycode RealIpLocCountryCode,
+			    i.realip_loc_lat RealIpLocLat,
+			    i.realip_loc_lng RealIpLocLng,
+			    i.realip_org RealIpOrg,
+			    i.realip_proxy RealIpProxy,
+			    i.realip_source RealIpSource,
+			    i.ruleset_rulesmatched RulesetRulesMatched,
+			    i.ruleset_score RulesetScore
+			FROM 
+			    OASIS_OWNER.UW_ENGINE_DECISION D,
+				OASIS_OWNER.APPLICATIONMERCHANTBRIDGE MBR,
+				oasis_owner.merchantaccount_enc ma, 
+				OASIS_OWNER.UW_ENGINE_IOVATION I 
+			WHERE 
+			    D.APPLICATION_EID = MBR.ACCOUNTAPPLICATIONEID AND
+			    D.UW_ENGINE_DECISION_EID = I.UW_ENGINE_DECISION_EID AND 
+			    MBR.MERCHANTACCOUNTEID = ma.EID AND
+				ma.ACCOUNTNUMBER = [MA_NUM]
+			]]>
+	</query>
+
+	<query name="query.merchant.PreviousDayProfile" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				mds.INTUITFINANCIALRISKLEVEL IntuitFinancialRiskLevel,
+				mds.IMSSTATUS ImsStatus,
+				mds.BANKSTATUS BankStatus
+			FROM
+				BRE.mds_tbl mds,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+			  ma.accountnumber = [MA_NUM] AND
+			  ma.eid = mds.MERCHANTEID AND
+			  mds.BATCHCYCLEDATE = ([BCD] -1)
+			]]>
+	</query>
+	
+		<query name="query.case.DayOfCreation" dbConnection="OASIS">
+		<![CDATA[
+			SELECT 
+				OPEN_DATE OpenDate
+			FROM
+				SONORA.CF_RISK cf,
+				oasis_owner.merchantaccount_enc ma
+			WHERE 
+			  cf.MERCHANTEID = ma.eid AND
+			  ma.accountnumber = [MA_NUM]
+			]]>
+		</query>
+	
+	<query name="query.aggregate" dbConnection="VOLTDB">
+		<![CDATA[
+			SELECT [AGGREGATE_FUNCTIONS]
+            FROM mds_tbl
+            WHERE accountnumber=[MA_NUM]
+            AND batchcycledate>=[DATE_START_BCD]
+            AND batchcycledate<=[DATE_END_BCD]
+		]]>
+	</query>	
+	<query name="proc.oracle.query.aggregate" dbConnection="OASIS">
+		<![CDATA[
+			{CALL SYSTEM.TEST_PROC2(?,?,?,?,?,?,?)}
+		]]>
+	</query>	
+	
+	<!-- dbo.usp_BRE_Agg_Credit '4266961000000339', 'TRAN', 'SUM', 35, 'MONTH', 'Amexx', '2013-08-0 -->
+	<query name="proc.mssql.query.aggregate" dbConnection="MSSQL">
+		<![CDATA[
+			{CALL dbo.usp_BRE_AGG_CREDIT(?, ?, ?, ?, ?, ?, ?)}
+		]]>
+	</query>	
+
+	<query name="dummy" dbConnection="MSSQL">
+		<![CDATA[
+			select 1 as DUMMY
+		]]>
+	</query>	
+
+	<query name="dummyString" dbConnection="MSSQL">
+		<![CDATA[
+			select 'ABC' as DUMMY
+		]]>
+	</query>	
+
+	<ruledata key="account.accountType" query="dummy" column="DUMMY" type="long" />
+	<ruledata key="account.age" query="dummy" column="DUMMY" type="long" />
+	<ruledata key="account.amv" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="account.amvReviewed" query="dummy" column="DUMMY" type="long" />
+	<ruledata key="account.merchantProduct" query="dummyString" column="DUMMY" type="string" />
+	<ruledata key="account.monthlyServiceFee" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="account.recommendedAMV" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="aggregates.daysSinceFirstTransaction" query="dummy" column="DUMMY" type="long" />
+	<ruledata key="aggregates.depositAmount30Day" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="aggregates.depositAmount7Day" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="aggregates.depositAmountDaily" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="aggregates.depositCountDaily" query="dummy" column="DUMMY" type="long" />
+	<ruledata key="aggregates.percentTransactionsRoundedTo100" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="aggregates.percentTransactionsRoundedTo1000" query="dummy" column="DUMMY" type="double" />
+	<ruledata key="aggregates.salesCountRatio" query="dummy" column="DUMMY" type="double" />
+
+	<ruledata key="aggregates.salesAmount180Days" query="dummy" column="DUMMY" type="double" />
+	
+	
+	
+	<ruledata key="merchantProfile.DBAName" query="query.merchant_enc" column="DBANAME" type="string" />
+	<ruledata key="merchantProfile.FDRStatus" query="query.merchantaccount_enc" column="FDRSTATUS" type="string" />
+	
+	<ruledata key="merchantProfile.AgentOfficeName" query="query.merchant.merchantProfile" column="AgentOfficeName" type="string" />
+	<ruledata key="merchantProfile.BankStatus" query="query.merchant.merchantProfile" column="BankStatus" type="string" />
+	<ruledata key="merchantProfile.BusinessModeInternet" query="query.merchant.merchantProfile" column="BusinessModeInternet" type="double" />
+	<ruledata key="merchantProfile.BusinessModeMailOrder" query="query.merchant.merchantProfile" column="BusinessModeMailOrder" type="double" />
+	<ruledata key="merchantProfile.BusinessModeOther" query="query.merchant.merchantProfile" column="BusinessModeOther" type="double" />
+	<ruledata key="merchantProfile.BusinessModeRestaurant" query="query.merchant.merchantProfile" column="BusinessModeRestaurant" type="double" />
+	<ruledata key="merchantProfile.BusinessModeRetail" query="query.merchant.merchantProfile" column="BusinessModeRetail" type="double" />
+	<ruledata key="merchantProfile.BusinessModeService" query="query.merchant.merchantProfile" column="BusinessModeService" type="double" />
+	<ruledata key="merchantProfile.CreditScore" query="query.merchant.merchantProfile" column="CreditScore" type="long" />
+	<ruledata key="merchantProfile.CSFWaivedMonths" query="query.merchant.merchantProfile" column="CsfWaivedMonths" type="long" />
+	<ruledata key="merchantProfile.IMSStatus" query="query.merchant.merchantProfile" column="ImsStatus" type="string" />
+	<ruledata key="merchantProfile.IMSStatusDate" query="query.merchant.merchantProfile" column="ImsStatusDate" type="date" />
+	<ruledata key="merchantProfile.gpFeeWaived" query="query.merchant.merchantProfile" column="GpFeeWaived" type="string" />
+	<ruledata key="merchantProfile.MonthlyServiceFee" query="query.merchant.merchantProfile" column="MonthlyServiceFee" type="double" />
+	<ruledata key="merchantProfile.MobileMerchant" query="query.merchant.merchantProfile" column="MobileMerchant" type="string" />
+	<ruledata key="merchantProfile.MobileOnlyMerchant" query="query.merchant.merchantProfile" column="MobileOnlyMerchant" type="string" />
+	<ruledata key="merchantProfile.OwnershipType" query="query.merchant.merchantProfile" column="ownershiptype" type="string" />
+	<ruledata key="merchantProfile.ageOfBusinessMonths" query="query.merchant.merchantProfile" column="AgeOfBusinessMonths" type="long" />
+	<ruledata key="merchantProfile.ageWithIMS" query="query.merchant.merchantProfile" column="AgeWithIMS" type="long" />
+	<ruledata key="merchantProfile.QBMSSDKFee" query="query.merchant.merchantProfile" column="QbmsSdkFee" type="double" />
+	<ruledata key="merchantProfile.highVolumeMerchantRetention" query="query.merchant.merchantProfile" column="HighVolumeMerchantRetention" type="string" />
+	<ruledata key="merchantProfile.LocationState" query="query.merchant.merchantProfile" column="LocationState" type="string" />
+	<ruledata key="merchantProfile.LocationZip" query="query.merchant.merchantProfile" column="LocationZip" type="string" />
+	<ruledata key="merchantProfile.SICCode" query="query.merchant.merchantProfile" column="SicCode" type="string" />
+	<ruledata key="merchantProfile.NewMerchantRetention" query="query.merchant.merchantProfile" column="NewMerchantRetention" type="string" />
+	<ruledata key="merchantProfile.NewMerchantRisk" query="query.merchant.merchantProfile" column="NewMerchantRisk" type="string" />
+
+	<ruledata key="merchantProfile.ExperianBankrupcyIndicator" query="query.merchant.experian" column="ExperianBankrupcyIndicator" type="string" />
+	<ruledata key="merchantProfile.ExperianIntelliScorePlusScore" query="query.merchant.experian" column="ExperianIntelliScorePlusScore" type="double" />
+	<ruledata key="merchantProfile.ExperianJudgementBalance" query="query.merchant.experian" column="ExperianJudgementBalance" type="double" />
+	<ruledata key="merchantProfile.ExperianJudgementCount" query="query.merchant.experian" column="ExperianJudgementCount" type="long" />
+	<ruledata key="merchantProfile.ExperianLienBalance" query="query.merchant.experian" column="ExperianLienBalance" type="double" />
+	<ruledata key="merchantProfile.ExperianLienCount" query="query.merchant.experian" column="ExperianLienCount" type="long" />
+	<ruledata key="merchantProfile.ExperianSICCode" query="query.merchant.experian" column="ExperianSIC" type="string" />
+	<ruledata key="merchantProfile.ExperianVantageScore" query="query.merchant.experian" column="ExperianVantageScore" type="string" />
+	<ruledata key="merchantProfile.alertDate" query="query.merchant.experian" column="alertDate" type="date" />
+
+	<ruledata key="merchantProfile.MerchantRiskScore" query="query.merchant.accountExtended" column="MerchantRiskScore" type="long" />
+	<ruledata key="merchantProfile.MerchantDailyLimits" query="query.merchant.accountExtended" column="MerchantDailyLimits" type="double" />
+	<ruledata key="merchantProfile.RecalculatedApprovedMonthlyVolume" query="query.merchant.accountExtended" column="RecalculatedApprovedMonvol" type="double" />
+
+	<ruledata key="merchantProfile.ApprovedMonthlyVolume" query="query.merchant.approvedMonthlyVolume" column="ApprovedMonthlyVolume" type="double" />
+
+	<ruledata key="merchantProfile.nachaStatus" query="query.merchant.nachaStatus" column="NachaStatus" type="string" />
+
+	<ruledata key="merchantProfile.ApprovedTicketAamount" query="query.merchant.approvedTicketAmount" column="ApprovedTicketAmount" type="double" />
+
+	<ruledata key="merchantProfile.CollectReserveStatus" query="query.merchant.collectReserveStatus" column="CollectReserveStatus" type="string" />
+
+	<ruledata key="merchantProfile.HighValueMerchantRisk" query="query.merchant.highValueMerchantRisk" column="HighValueMerchantRisk" type="string" />
+
+	<ruledata key="merchantProfile.HighVolumeMerchantRisk" query="query.merchant.highVolumeMerchantRisk" column="HighVolumeMerchantRisk" type="string" />
+
+	<ruledata key="merchantProfile.IntuitFinancialRiskLevel" query="query.merchant.intuitFinancialRiskLevel" column="IntuitFinancialRiskLevel" type="string" />
+
+	<ruledata key="merchantProfile.BANControlStatus" query="query.merchant.banControlStatus" column="BanControlStatus" type="string" />
+
+	<ruledata key="merchantProfile.ActiveFundingType" query="query.merchant.merchantBank" column="FUNDINGTYPEID" type="int" />
+	<!-- 
+	<ruledata key="merchantProfile.EnrolledInCMC" query="query.merchant.merchantBank" column="EnrolledInCMC" type="string" />
+    -->
+	<ruledata key="merchantProfile.FirstTransactionDate" query="query.merchant.merchantTransHeader" column="FirstTransactionDate" type="date" />
+	<ruledata key="merchantProfile.LastTransactionDate" query="query.merchant.merchantTransHeader" column="LastTransactionDate" type="date" />
+	<ruledata key="merchantProfile.DaysSinceFirstTransaction" query="query.merchant.merchantTransHeader" column="DaysSinceFirstTransaction" type="int" />
+	<ruledata key="merchantProfile.DaysSinceLastTransaction" query="query.merchant.merchantTransHeader" column="DaysSinceLastTransaction" type="int" />
+
+	<ruledata key="merchantProfile.Channel" query="query.merchant.merchantAppChannel" column="Channel" type="string" />
+
+	<ruledata key="merchantProfile.placedOnBanControl" query="query.merchant.banControlHistory" column="BANCONTROLSTATUS" type="string" />
+
+	<ruledata key="merchantProfile.SincAlertIndicator" query="query.merchant.sincAlertIndicator" column="SincAlertIndicator" type="string" />
+
+	<ruledata key="merchantProfile.VantageCreditScore" query="query.merchant.vantageCreditScore" column="VantageCreditScore" type="long" />
+	
+	<!-- IDAnalytics  -->
+
+	<ruledata key="idAnalytics.IdScore" query="query.idAnalytics.score" column="IdScore" type="long" />
+	<ruledata key="idAnalytics.IdScoreResultCode1" query="query.idAnalytics.score" column="IdScoreResultCode1" type="long" />
+	<ruledata key="idAnalytics.IdScoreResultCode2" query="query.idAnalytics.score" column="IdScoreResultCode2" type="long" />
+	<ruledata key="idAnalytics.IdScoreResultCode3" query="query.idAnalytics.score" column="IdScoreResultCode3" type="long" />
+	<ruledata key="idAnalytics.ComplianceAttributesOverall" query="query.idAnalytics.complianceAttributesOverall" column="ComplianceAttributesOverall" type="string" />
+	<ruledata key="idAnalytics.FraudAttributesOverall" query="query.idAnalytics.fraudAttributesOverall" column="FraudAttributesOverall" type="string" />
+
+	<!-- Iovation -->
+	
+	<ruledata key="iovation.DaysSinceDeviceFirstSeen" query="query.iovation.UwEngine" column="DaysSinceDeviceFirstSeen" type="long" />
+	<ruledata key="iovation.DeviceBrowserType" query="query.iovation.UwEngine" column="DeviceBrowserType" type="string" />
+	<ruledata key="iovation.DeviceBrowserVersion" query="query.iovation.UwEngine" column="DeviceBrowserVersion" type="string" />
+	<ruledata key="iovation.DeviceCookieEnabled" query="query.iovation.UwEngine" column="DeviceCookieEnabled" type="string" />
+	<ruledata key="iovation.DeviceFirstSeen" query="query.iovation.UwEngine" column="DeviceFirstSeen" type="date" />
+	<ruledata key="iovation.DeviceNew" query="query.iovation.UwEngine" column="DeviceNew" type="string" />
+	<ruledata key="iovation.DeviceType" query="query.iovation.UwEngine" column="DeviceType" type="string" />
+	<ruledata key="iovation.MerchantAccountEID" query="query.iovation.UwEngine" column="MerchantAccountEID" type="long" />
+	<ruledata key="iovation.RealIp" query="query.iovation.UwEngine" column="RealIp" type="string" />
+	<ruledata key="iovation.RealIpLocCity" query="query.iovation.UwEngine" column="RealIpLocCity" type="string" />
+	<ruledata key="iovation.RealIpLocCountry" query="query.iovation.UwEngine" column="RealIpLocCountry" type="string" />
+	<ruledata key="iovation.RealIpLocCountryCode" query="query.iovation.UwEngine" column="RealIpLocCountryCode" type="string" />
+	<ruledata key="iovation.RealIpLocLat" query="query.iovation.UwEngine" column="RealIpLocLat" type="double" />
+	<ruledata key="iovation.RealIpLocLng" query="query.iovation.UwEngine" column="RealIpLocLng" type="double" />
+	<ruledata key="iovation.RealIpOrg" query="query.iovation.UwEngine" column="RealIpOrg" type="string" />
+	<ruledata key="iovation.RealIpProxy" query="query.iovation.UwEngine" column="RealIpProxy" type="string" />
+	<ruledata key="iovation.RealIpSource" query="query.iovation.UwEngine" column="RealIpSource" type="string" />
+	<ruledata key="iovation.RulesetRulesMatched" query="query.iovation.UwEngine" column="RulesetRulesMatched" type="long" />
+	<ruledata key="iovation.RulesetScore" query="query.iovation.UwEngine" column="RulesetScore" type="long" />
+	<ruledata key="iovation.RealIpIsp" query="query.iovation.UwEngine" column="RealIpIsp" type="string" />
+
+	<ruledata key="merchantPreviousDayProfile.IntuitFinancialRiskLevel" query="query.merchant.PreviousDayProfile" column="IntuitFinancialRiskLevel" type="string" />
+	<ruledata key="merchantPreviousDayProfile.ImsStatus" query="query.merchant.PreviousDayProfile" column="ImsStatus" type="string" />
+	<ruledata key="merchantPreviousDayProfile.BankStatus" query="query.merchant.PreviousDayProfile" column="BankStatus" type="string" />
+	<ruledata key="case.DayOfCreation" query="query.case.DayOfCreation" column="OpenDate" type="string" />
+	
+	<!-- 
+	<ruledata key="sum.SalesAmountDaily,count.SalesAmountDaily" query="query.aggregate" column="SUM(SLSAMTDLY), COUNT(SLSAMTDLY)" type="double,long" />
+	-->
+	
+	<!-- Aggregates -->
+	<!--  
+	<ruledata key="sum.SalesAmountDaily" query="query.aggregate" column="SUM(SLSAMTDLY)" type="double" />
+	<ruledata key="sum.SalesCountDaily" query="query.aggregate" column="SUM(SLSCNTDLY)" type="double" />
+	<ruledata key="sum.DepositAmountDaily" query="query.aggregate" column="SUM(DPSTAMTDLY)" type="double" />
+	<ruledata key="sum.DepositCountDaily" query="query.aggregate" column="SUM(DPSTCNTDLY)" type="double" />
+	<ruledata key="sum.RiskRuleAlertsFiredCountDaily" query="query.aggregate" column="SUM(RSKRULEALERTSFIREDCNTDLY)" type="double" />
+	<ruledata key="sum.ChargebacksFraudCountDaily" query="query.aggregate" column="SUM(CBFRDCNTDLY)" type="double" />
+	<ruledata key="sum.ChargebacksNonFraudCountDaily" query="query.aggregate" column="SUM(CBNONFRDCNTDLY)" type="double" />
+	<ruledata key="sum.ReturnsAmountDaily" query="query.aggregate" column="SUM(RETURNSAMTDLY)" type="double" />
+	<ruledata key="sum.AuthorizationPennyCountDaily" query="query.aggregate" column="SUM(AUTHPENNYCNTDLY)" type="double" />
+	<ruledata key="sum.AuthorizationDeclineCountDaily" query="query.aggregate" column="SUM(AUTHDECCNTDLY)" type="double" />	
+	<ruledata key="sum.AuthorizationCountDaily" query="query.aggregate" column="SUM(AUTHCNTDLY)" type="double" />	
+	<ruledata key="sum.AuthorizationCVVInvalidResponseCountDaily" query="query.aggregate" column="SUM(AUTHCVVINVLDRESPCNTDLY)" type="double" />
+	<ruledata key="sum.AuthorizationCardHolderMismatchCountDaily" query="query.aggregate" column="SUM(AUTHCHEXPMISMATCHCNTDLY)" type="double" />
+	<ruledata key="sum.AuthorizationAVSDeclineAmountDaily" query="query.aggregate" column="SUM(AUTHAVSDCLNAMTDLY)" type="double" />
+	<ruledata key="sum.SalesCountNoAMEXDaily" query="query.aggregate" column="SUM(SLSCNTNOAMEXDLY)" type="double" />	
+	<ruledata key="sum.SalesAmountNoAMEXDaily" query="query.aggregate" column="SUM(SLSAMTNOAMEXDLY)" type="double" />
+	<ruledata key="sum.ChargebacksFraudAmountDaily" query="query.aggregate" column="SUM(CBFRDAMTDLY)" type="double" />	
+	<ruledata key="sum.ChargebacksNonFraudAmountDaily" query="query.aggregate" column="SUM(CBNONFRDAMTDLY)" type="double" />	
+	<ruledata key="sum.SalesKeyedAmountDaily" query="query.aggregate" column="SUM(SLSKYDAMTDLY)" type="double" />
+	<ruledata key="sum.SalesKeyedCountDaily" query="query.aggregate" column="SUM(SLSKYDCNTDLY)" type="double" />	
+	
+	<ruledata key="sum.DepositHighestAmount31to120Day" query="query.aggregate" column="MAX(DPSTAMTDLY)" type="double" />	
+	<ruledata key="sum.SalesHighestAmountDaily" query="query.aggregate" column="MAX(SLSHGHAMTDLY)" type="double" />	
+	
+	<ruledata key="sum.SalesHighestAmountLast30Days" query="query.aggregate" column="SUM(SLSHGHAMTLST30DAYS)" type="double" />
+	-->
+	<aggdata name="Agg-Query-1" query="query.aggregate" > 
+		<ruledata key="sum.SalesAmountDaily" query="query.aggregate" column="SUM(SLSAMTDLY)" type="double" />
+		<ruledata key="sum.SalesCountDaily" query="query.aggregate" column="SUM(SLSCNTDLY)" type="double" />
+	</aggdata>
+	<aggdata name="Agg-Query-2" query="query.aggregate" > 
+		<ruledata key="sum.DepositAmountDaily" query="query.aggregate" column="SUM(DPSTAMTDLY)" type="double" />
+		<ruledata key="sum.DepositCountDaily" query="query.aggregate" column="SUM(DPSTCNTDLY)" type="double" />
+	</aggdata>
+	<!-- 
+≈	<aggdata name="proc.oracle.auth.sum" query="proc.oracle.query.aggregate" > 
+		<ruledata key="AUTH_SUM_1" query="proc.oracle.query.aggregate" column="AUTH_SUM_1" type="double" />
+	</aggdata>
+	 -->	
+	 <!-- key-syntax: aggType.monthOrday.cardType.aggFunction.column-name 
+	<aggdata name="Agg-Query-3" query="proc.mssql.query.aggregate" > 
+		<ruledata key="sum.SalesAmountDaily" query="query.aggregate" column="SUM(SLSAMTDLY)" type="double" />
+		<ruledata key="AUTH.MONTH.AMEX.SUM.AMT" query="proc.mssql.query.aggregate" column="AMT" type="double" />
+		<ruledata key="AUTH.MONTH.AMEX.SUM.CNT" query="proc.mssql.query.aggregate" column="CNT" type="double" />	
+	</aggdata>	
+	 -->
+	<aggdata name="Agg-Query-4" query="proc.mssql.query.aggregate" > 
+		<ruledata key="CNT" query="proc.mssql.query.aggregate" column="CNT" type="long" />
+		<ruledata key="AMT" query="proc.mssql.query.aggregate" column="AMT" type="double" />
+		<ruledata key="SALE_CNT" query="proc.mssql.query.aggregate" column="SALE_CNT" type="long" />
+		<ruledata key="SALE_AMT" query="proc.mssql.query.aggregate" column="SALE_AMT" type="double" />
+		<ruledata key="RETURN_CNT" query="proc.mssql.query.aggregate" column="RETURN_CNT" type="long" />
+		<ruledata key="RETURN_AMT" query="proc.mssql.query.aggregate" column="RETURN_AMT" type="double" />
+		<ruledata key="SALE_KEYED_CNT" query="proc.mssql.query.aggregate" column="SALE_KEYED_CNT" type="long" />
+		<ruledata key="SALE_KEYED_AMT" query="proc.mssql.query.aggregate" column="SALE_KEYED_AMT" type="double" />
+		<ruledata key="RETURN_KEYED_CNT" query="proc.mssql.query.aggregate" column="RETURN_KEYED_CNT" type="long" />
+		<ruledata key="RETURN_KEYED_AMT" query="proc.mssql.query.aggregate" column="RETURN_KEYED_AMT" type="double" /> 
+		<ruledata key="SALE_SWIPED_CNT" query="proc.mssql.query.aggregate" column="SALE_SWIPED_CNT" type="long" />
+		<ruledata key="SALE_SWIPED_AMT" query="proc.mssql.query.aggregate" column="SALE_SWIPED_AMT" type="double" />
+		<ruledata key="RETURN_SWIPED_CNT" query="proc.mssql.query.aggregate" column="RETURN_SWIPED_CNT" type="long" />
+		<ruledata key="RETURN_SWIPED_AMT" query="proc.mssql.query.aggregate" column="RETURN_SWIPED_AMT" type="double" />
+	</aggdata>	
+</RuleDataQueries>
