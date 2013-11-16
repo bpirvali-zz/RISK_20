@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" >
+
+	<bean id="mappings"
+    	  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+ 		<property name="locations">
+ 			<list>
+            <value>classpath:riskprocessorjdbc.properties</value>
+            </list>
+ 		</property>
+	 </bean>
+
+	 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		  	<property name="driverClassName" value="${hsqldb.jdbc.driverClassName}" />
+		  	<property name="url" value="${hsqldb.jdbc.url}" />
+		  	<property name="username" value="${hsqldb.jdbc.userName}" />
+		  	<property name="password" value="${hsqldb.jdbc.password}" />
+		  	<property name="initialSize" value="${hsqldb.jdbc.initialSize}" />
+			<property name="maxActive" value="${hsqldb.jdbc.maxActive}" />
+			<property name="maxIdle" value="${hsqldb.jdbc.maxIdle}" />
+			<property name="defaultAutoCommit" value="true" />
+	 </bean>	 
+	 
+	 <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+	 		<property name="dataSource" ref="dataSource"/>
+	 </bean>
+	 
+	 <bean id="cardBatchStatusDAOImpl" class="com.intuit.psd.risk.processor.card.CardBatchStatusDAOImpl" scope="prototype">
+	 	<property name="jdbcTemplate" ref="jdbcTemplate" />
+	 </bean>
+	 
+	 <!-- make riskProcessorImpl prototype scope -->
+	 <bean id="riskProcessorImpl" class="com.intuit.psd.risk.processor.RiskProcessorImpl" scope="prototype">
+	 	<property name="riskAbstractFactory" ref="riskAbstractFactory"/>
+	 	<property name="rulesEngine" ref="rulesEngine"/>
+	 </bean>
+	 
+	 <bean id="cardBatchRuleFlowImpl" class="com.intuit.psd.risk.processor.card.CardBatchRuleFlowImpl" scope="prototype">
+	 	<property name="rulesEngine" ref="rulesEngine" />
+	 </bean>
+
+	 <bean id="cardBatchFactoryImpl" class="com.intuit.psd.risk.processor.card.CardBatchFactoryImpl">
+ 		<property name="statusDAO" ref="cardBatchStatusDAOImpl" />
+ 		<property name="ruleFlow" ref="cardBatchRuleFlowImpl" />
+	 </bean>
+
+	 <bean id="riskAbstractFactory" class="com.intuit.psd.risk.processor.RiskAbstractFactory">
+ 		<property name="cardBatchFactoryImpl" ref="cardBatchFactoryImpl" />
+	 </bean>
+	 <bean id="rulesEngine" class="com.intuit.psd.risk.processor.blaze.BlazeRulesEngine"/>
+</beans>

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.intuit.payments</groupId>
+		<artifactId>OASIS-Parent-pom</artifactId>
+		<relativePath></relativePath>
+		<version>1.0.0</version>
+	</parent>
+	<groupId>com.intuit.payments.risk</groupId>
+	<artifactId>RiskProcessor-Deploy</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>RiskProcessor Deploy</name>
+
+	<properties>
+		<artifact.name>RiskProcessor</artifact.name>
+		<build.version>0.0.1-SNAPSHOT</build.version>
+		<maven.dependency.version>2.8</maven.dependency.version>
+		<repo.root>/app/mavenRepo</repo.root>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.intuit.psd.risk</groupId>
+			<artifactId>RiskProcessor</artifactId>
+			<version>${build.version}</version>
+			<classifier>bin</classifier>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+	 <build>
+	
+	<plugins>
+	<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${maven.dependency.version}</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+		<outputDirectory>${repo.root}/${artifact.name}/${build.version}</outputDirectory>
+		<overWriteReleases>true</overWriteReleases>
+		<overWriteSnapshots>true</overWriteSnapshots>
+		<stripVersion>true</stripVersion>
+		<stripClassifier>true</stripClassifier>
+		<excludeTransitive>true</excludeTransitive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+		
+    	</plugins>
+  </build>
+</project>

@@ -1,0 +1,1 @@
+package com.intuit.psd.risk.processor.exceptions;/** *  * @author asookazian *  *  */public class RiskException extends RuntimeException {	private static final long serialVersionUID = 9131557979167520701L;	public RiskException() {	}	public RiskException(String message)	{		super(message);	}}
