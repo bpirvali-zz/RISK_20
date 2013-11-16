@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<!-- Parent GAV -->
+	<parent>
+		<groupId>com.intuit.payments</groupId>
+		<artifactId>OASIS-Parent-pom</artifactId>
+		<relativePath />
+		<version>1.2.0</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.intuit.bre</groupId>
+	<artifactId>BRERuleData</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+	<name>BRE Rule Data</name>
+	
+	<build>
+		<finalName>BRERuleData</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+	       <!-- <plugin>
+	            <groupId>com.atlassian.maven.plugins</groupId>
+	        	<artifactId>maven-clover2-plugin</artifactId>
+	        	<executions>
+	          		<execution>
+	            		<phase>pre-site</phase>
+	            			<goals>
+	              				<goal>instrument</goal>
+	            			</goals>
+	          		</execution>
+	        	</executions>
+	      	</plugin>-->
+		</plugins>
+		
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-antrun-plugin
+										</artifactId>
+										<versionRange>
+											[1.7,)
+										</versionRange>
+										<goals>
+											<goal>run</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+				<plugin>
+		             <groupId>com.atlassian.maven.plugins</groupId>
+		             <artifactId>maven-clover2-plugin</artifactId>
+		             <configuration>
+		                 <historyDir>${cloverHistoryDir}</historyDir>
+		                 <generateHistorical>true</generateHistorical>
+		                 <targetPercentage>85%</targetPercentage>
+		                 <generateHtml>true</generateHtml>
+		                 <generateXml>true</generateXml>
+		                 <excludes>
+                      		<exclude>**/com/intuit/bre/ruledata/DataStorageDAO*.java</exclude>
+		                 </excludes>
+		                 <license>
+		                     <![CDATA[ oNopPfRfaMKCDaClAnloWVkMomPbjptslXBATfhGSUBosHc mj2K<MJbw89Baw6isbFySuzH2L07T8ghj4lagqgXnm9InU8 PRrQWWMqMQOORQrpooNwxnopqrpRnoOrmpvutuuXWsXSOnO mpnmnmUUnouvpvqmmmmmmUUnouvpvqmmmmmmUU9kqrfqUUn mmmm ]]>
+		                 </license>
+		             </configuration>
+		         </plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	
+	<!-- Global properties -->
+	<properties>
+		<org.springframework.version>3.1.0.RELEASE</org.springframework.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.intuit.payments.common</groupId>
+			<artifactId>PSD_Common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.4</version>
+		</dependency>		
+		<dependency>
+			<groupId>com.intuit.payments.uploaded</groupId>
+			<artifactId>AdvCommon</artifactId>
+			<version>7.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.intuit.payments.uploaded</groupId>
+		  <artifactId>Advisor</artifactId>
+		  <version>7.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.intuit.payments.uploaded</groupId>
+		  <artifactId>AdvisorSvr</artifactId>
+		  <version>7.2</version>
+		</dependency>	
+		 <dependency>
+           <groupId>com.intuit.payments.uploaded</groupId>
+           <artifactId>InnovatorRT</artifactId>
+           <version>7.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.voltdb</groupId>
+		  <artifactId>VoltDB</artifactId>
+		  <version>3.4</version>
+		</dependency>	
+		<dependency>
+		  <groupId>com.google.guava</groupId>
+		  <artifactId>guava</artifactId>
+		  <version>12.0</version>
+		</dependency>	
+  		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>3.1.2.RELEASE</version>
+		</dependency>		
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+		  <groupId>oracle</groupId>
+		  <artifactId>ojdbc6</artifactId>
+		  <version>11.2.0.3.0</version>
+		</dependency>	
+		<dependency>
+		  <groupId>commons-io</groupId>
+		  <artifactId>commons-io</artifactId>
+		  <version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>3.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymockclassextension</artifactId>
+			<version>3.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-testng</artifactId>
+			<version>1.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-easymock</artifactId>
+			<version>1.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.3.168</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.intuit.psd.risk.risk2</groupId>
+			<artifactId>ConfigMgr</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+				
+		<!--  SQL-Server JDBC Driver, which allows Windows-Authentication -->
+		<dependency>
+			<groupId>net.sourceforge.jtds</groupId>
+			<artifactId>jtds</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		
+		 <dependency>
+                       <groupId>org.hsqldb</groupId>
+                       <artifactId>hsqldb</artifactId>
+                       <version>2.3.0</version>
+               </dependency>
+		
+		
+	</dependencies>
+	
+</project>
