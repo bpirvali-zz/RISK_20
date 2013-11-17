@@ -26,6 +26,7 @@ public class CardBatchEventSpout extends BaseRichSpout {
 	private static final long 	serialVersionUID = 1;		
 	private static final Logger logger = LoggerFactory.getLogger(CardBatchEventSpout.class);
 	public static final String CARD_BATCH_RISK_EVENT_TUPLE = "CardBatchEvent";
+	public static final String STREAM_RISK_EVENTS = "RISK_EVENTS";
 	
 	private int 				workerID;
 	private int 				maxRetries;
@@ -92,6 +93,8 @@ public class CardBatchEventSpout extends BaseRichSpout {
 				CardBatchEvent event = entry.getValue();
 				logger.trace("Spout[{}]:Thread[{}]:emitting:[{}]...", workerID, Thread.currentThread().getId(), event.toString());
 				collector.emit(new Values(event), event);
+				collector.emit(CardBatchEventSpout.STREAM_RISK_EVENTS, new Values(event), event);
+				//collector.emit(CardBatchEventSpout.STREAM_RISK_EVENTS, new Values(event), new Values(event) );
 			} 
 			toProcessEvents.clear();
 		// I do not have anything to send --> Send the heart beat go to sleep and exit!
@@ -107,7 +110,8 @@ public class CardBatchEventSpout extends BaseRichSpout {
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields(CARD_BATCH_RISK_EVENT_TUPLE));
+		//declarer.declare(new Fields(CARD_BATCH_RISK_EVENT_TUPLE));
+		declarer.declareStream(CardBatchEventSpout.STREAM_RISK_EVENTS, new Fields(CARD_BATCH_RISK_EVENT_TUPLE));
 	}
 
     @Override

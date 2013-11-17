@@ -53,9 +53,9 @@ public class CardBatchEventBolt extends BaseRichBolt {
 
 		if (riskProcessor==null) 
 			riskProcessor = (RiskProcessor)SpringObjectMgr.getInstance().getBean("riskProcessorImpl");
-			//riskProcessor = (RiskProcessor)createMockedProcessor();
-		//if (cfg==null) 
-		//	cfg = (RiskProcessor)SpringObjectMgr.getInstance().getBean("ConfigMgrImpl");
+		if (cfg==null) 
+			cfg = (ConfigMgr)SpringObjectMgr.getInstance().getBean("configMgrImpl");
+		cfg.refreshCache();
 		
 		riskProcessor.prepare(boltID);
 	}
@@ -70,6 +70,8 @@ public class CardBatchEventBolt extends BaseRichBolt {
 	public void execute(Tuple input) {
 		Object obj = input.getValue(0);
 		
+		if (input.getSourceStreamId()!=null && input.getSourceStreamId().equals(CardBatchEventSpout.STREAM_RISK_EVENTS))
+			logger.info("Risk Events Received...!");
 		// check object type
 		if (!(obj instanceof CardBatchEvent))
 			throw new RuntimeException("input tuple:[" + obj.toString()

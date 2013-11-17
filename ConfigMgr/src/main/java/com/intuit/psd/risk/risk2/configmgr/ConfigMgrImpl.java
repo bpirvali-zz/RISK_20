@@ -10,7 +10,7 @@ import com.intuit.psd.risk.risk2.configmgr.interfaces.ConfigMgr;
 
 public class ConfigMgrImpl implements ConfigMgr {
 
-	private JdbcTemplate jdbcTemplate;
+	private transient JdbcTemplate jdbcTemplate;
 	private final Map<String, String> mapConfig;
 
 

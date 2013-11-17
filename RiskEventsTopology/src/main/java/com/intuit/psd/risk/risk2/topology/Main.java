@@ -88,7 +88,7 @@ public class Main {
 		builder.setBolt(
 				AppConsts.CARD_BATCH_EVENT_BOLT_NAME, 
 				new CardBatchEventBolt(), 
-				cfg.getInt(AppConsts.SRE_NO_BOLTS)).localOrShuffleGrouping(AppConsts.CARD_BATCH_EVENT_SPOUT_NAME);		
+				cfg.getInt(AppConsts.SRE_NO_BOLTS)).localOrShuffleGrouping(AppConsts.CARD_BATCH_EVENT_SPOUT_NAME, CardBatchEventSpout.STREAM_RISK_EVENTS);		
     	
 		if (runLocalCluster) {
 			// -----------------------
