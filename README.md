@@ -30,11 +30,9 @@ block!
 *   Red
 *   Green
 *   Blue
-
 +   Red
 +   Green
 +   Blue
-
 -   Red
 -   Green
 -   Blue
