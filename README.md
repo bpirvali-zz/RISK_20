@@ -36,10 +36,7 @@ block!
 -   Red
 -   Green
 -   Blue      
-
-
-
-
+   
 
 1.  Bird
 2.  McHale
