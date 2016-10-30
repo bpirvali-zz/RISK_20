@@ -41,6 +41,9 @@ I get 10 times more traffic from [Google][1] than from
 [2]: http://search.yahoo.com/  "Yahoo Search"
 [3]: http://search.msn.com/    "MSN Search"
 
+![Risk-Image][id]
+[id]: ./risk-img.jpg "Risk"
+
 1.  Bird
 2.  McHale
 3.  Parish
