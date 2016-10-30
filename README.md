@@ -43,7 +43,7 @@ I get 10 times more traffic from [Google][1] than from
 
 ![Risk-Image][id]
 [id]: ./risk-img.jpg "Risk"
-
+ 
 1.  Bird
 2.  McHale
 3.  Parish
