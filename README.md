@@ -31,8 +31,8 @@ block!
 *   Green
 *   Blue
 
-This is a test   
-line
+This is a test line!
+This is an [example link](http://example.com/)
 
 1.  Bird
 2.  McHale
